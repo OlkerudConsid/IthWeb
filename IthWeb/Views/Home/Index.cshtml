@@ -1,0 +1,42 @@
+﻿@model List<BlogPost>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+    <h1 class="display-4">Welcome</h1>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form asp-controller="Home" asp-action="Index" method="post">
+            <div class="form-group">
+                <input type="text" class="form-control" name="Title" placeholder="Title" />
+            </div>
+            <div class="form-group">
+                <textarea name="Text" class="form-control" rows="3" placeholder="Text..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+        <hr />
+    }
+
+    @if (TempData["PostError"] != null)
+    {
+        <h3 class="alert-danger">@TempData["PostError"]</h3>
+    }
+
+    <section id="post-wrapper">
+        @foreach (var post in Model)
+        {
+            <article class="blog-post">
+                <h2>@post.Title</h2>
+                <p class="info">Published by @post.Author at @post.PublishedDate.ToString("MMMM dd yyyy h:mm")</p>
+                <p>@post.Text</p>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="btn btn-danger" asp-action="DeletePost" asp-route-id="@post.Id">Delete</a>
+                }
+            </article>
+        }
+    </section>
+</div>
