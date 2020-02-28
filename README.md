@@ -13,5 +13,6 @@ Båda projekten bygger på **ASP.NET Core 3.1**.
 - [x] Registrera användare
 - [x] Logga in/ut användare
 - [x] Redigera användare
-- [ ] Redigera blogginlägg
+- [x] Redigera blogginlägg
+- [x] Lägg till/redigera bilder på blogginlägg
 - [ ] Hämta enskilt blogginlägg
