@@ -6,30 +6,10 @@ html, body {
     background-color: whitesmoke;
 }
 
-#post-wrapper {
-    display: flex;
-    flex-flow: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.blog-post {
-    display: inline-block;
-    flex-basis: 30%;
-    flex-grow: 1;
-    background-color: white;
-    border-radius: 2px;
+#post-wrapper .card {
     box-shadow: rgba(0, 0, 0, 0.2) 0 4px 8px;
-    padding: 1rem;
-    margin: 1rem;
-    text-align: left;
 }
 
-.blog-post > .info {
-    font-style: italic;
-    color: lightgray;
-}
-
-.blog-post > p:not(.info) {
+#post-wrapper .card > .card-body {
     white-space: pre-line;
 }

@@ -1,42 +1,54 @@
-﻿@model List<BlogPost>
+﻿@model HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
 
-<div>
-    <h1 class="display-4">Welcome</h1>
+<h1 class="display-4">Welcome @User.Identity.Name</h1>
 
-    @if (User.Identity.IsAuthenticated)
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-controller="Home" asp-action="Index" enctype="multipart/form-data" method="post">
+        <h3>Make a post</h3>
+        <div class="form-group">
+            <label for="Title">Post title</label>
+            <input type="text" class="form-control" name="Title" placeholder="Title" required asp-for="InputModel.Title" />
+            <label for="Image">Image</label>
+            <input type="file" class="form-control-file" name="ImageFile" accept="image/*" asp-for="InputModel.ImageFile" />
+            <label for="Text">Post content</label>
+            <textarea name="Text" class="form-control" rows="3" placeholder="Text..." required asp-for="InputModel.Text"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+    <hr />
+}
+
+@if (TempData["PostError"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["PostError"]
+    </div>
+}
+
+<section id="post-wrapper" class="card-columns">
+    @foreach (var post in Model.BlogPosts)
     {
-        <form asp-controller="Home" asp-action="Index" method="post">
-            <div class="form-group">
-                <input type="text" class="form-control" name="Title" placeholder="Title" />
-            </div>
-            <div class="form-group">
-                <textarea name="Text" class="form-control" rows="3" placeholder="Text..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Post</button>
-        </form>
-        <hr />
-    }
+    <article class="card">
+        <h3 class="card-header">@post.Title</h3>
+        <img class="card-img-top" src="@post.ImageUrl" alt="@post.ImageUrl">
+        <div class="card-body">
+            <p class="card-text">@post.Text</p>
 
-    @if (TempData["PostError"] != null)
-    {
-        <h3 class="alert-danger">@TempData["PostError"]</h3>
-    }
-
-    <section id="post-wrapper">
-        @foreach (var post in Model)
-        {
-            <article class="blog-post">
-                <h2>@post.Title</h2>
-                <p class="info">Published by @post.Author at @post.PublishedDate.ToString("MMMM dd yyyy h:mm")</p>
-                <p>@post.Text</p>
-                @if (User.Identity.IsAuthenticated)
-                {
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="btn-group">
                     <a class="btn btn-danger" asp-action="DeletePost" asp-route-id="@post.Id">Delete</a>
-                }
-            </article>
-        }
-    </section>
-</div>
+                    <a class="btn btn-secondary" asp-action="EditPost" asp-route-id="@post.Id">Edit</a>
+                </div>
+            }
+        </div>
+        <div class="card-footer text-muted">
+            Published by @post.Author at @post.PublishedDate.ToString("MMMM dd yyyy h:mm")
+        </div>
+    </article>
+    }
+</section>

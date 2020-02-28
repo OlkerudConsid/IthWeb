@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Rewrite;
+using IthWeb.Services;
 
 namespace IthWeb
 {
@@ -38,6 +39,7 @@ namespace IthWeb
             services.AddRazorPages();
             services.AddMvc();
             services.AddHttpClient(); // Registers IHttpClientFactory
+            services.AddTransient<IImageFileService, ImageFileService>(); // Register our custom imageFile service
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

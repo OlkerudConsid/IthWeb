@@ -1,0 +1,45 @@
+﻿@model BlogPostInputModel
+@{
+    ViewData["Title"] = $"Edit post \"{Model.Title}\"";
+}
+
+<h1>@ViewData["Title"]</h1>
+<form enctype="multipart/form-data" method="post">
+    <div class="row">
+        <div class="form-group col-xs-12 col-md-6">
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.ImageUrl)
+            <label for="Author">Author</label>
+            <input class="form-control" type="text" name="Author" readonly="readonly" asp-for="Author" />
+            <label for="PublishedDate">Published at</label>
+            <input class="form-control" type="datetime" name="PublishedDate" readonly="readonly" asp-for="PublishedDate" />
+            <label for="Title">Post title</label>
+            <input class="form-control" type="text" name="Title" asp-for="Title" />
+            <label for="Text">Post content</label>
+            <textarea class="form-control" rows="4" name="Text" asp-for="Text"></textarea>
+        </div>
+        <div class="form-group col-xs-12 col-md-6">
+            <label for="ImageFile">Image</label>
+            <input class="form-control-file" type="file" accept="image/*" name="ImageFile" asp-for="ImageFile" onchange="UpdatePreviewImage(this)" />
+            <br />
+            <img id="image-preview" class="img-thumbnail" src="@Model.ImageUrl" alt="Current post image preview." title="@Model.ImageUrl" onchange="" />
+        </div>
+    </div>
+    <div class="row">
+        <button type="submit" asp-controller="Home" asp-action="EditPost" class="btn btn-primary">Save</button>
+    </div>
+</form>
+
+<script type="text/javascript">
+    function UpdatePreviewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#image-preview').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
