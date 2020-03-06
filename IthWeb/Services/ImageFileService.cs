@@ -11,13 +11,23 @@ namespace IthWeb.Services
     {
         public Task<bool> DeleteImage(string fileName)
         {
-            throw new NotImplementedException();
+            string fileDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/");
+            string fullPath = fileDirectory + fileName;
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+                return Task.FromResult(true);
+            }
+
+            return Task.FromResult(false);
         }
 
         public async Task<string> SaveImage(IFormFile imageFile)
         {
             // Get the filename of the uploaded file and the path where we want to save the image.
-            var fileName = Path.GetFileName(imageFile.FileName);
+            var fileExtension = Path.GetExtension(imageFile.FileName);
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))

@@ -152,6 +152,12 @@ namespace IthWeb.Controllers
 
             if (inputModel.ImageFile != null)
             {
+                if (!string.IsNullOrEmpty(inputModel.ImageUrl))
+                {
+                    var imageFileName = inputModel.ImageUrl.Split('/').LastOrDefault();
+                    await _imageFileService.DeleteImage(imageFileName);
+                }
+
                 editedPost.ImageUrl = await _imageFileService.SaveImage(inputModel.ImageFile);
             }
 
@@ -176,6 +182,20 @@ namespace IthWeb.Controllers
             request.Headers.Add("User-Agent", "IthWeb");
 
             var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                var post = await JsonSerializer.DeserializeAsync<BlogPost>(responseStream,
+                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+                if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    var imageFileName = post.ImageUrl.Split('/').LastOrDefault();
+
+                    await _imageFileService.DeleteImage(imageFileName);
+                }
+            }
 
             return RedirectToAction("Index");
         }

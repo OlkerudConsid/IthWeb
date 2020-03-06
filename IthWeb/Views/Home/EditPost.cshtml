@@ -22,7 +22,7 @@
             <label for="ImageFile">Image</label>
             <input class="form-control-file" type="file" accept="image/*" name="ImageFile" asp-for="ImageFile" onchange="UpdatePreviewImage(this)" />
             <br />
-            <img id="image-preview" class="img-thumbnail" src="@Model.ImageUrl" alt="Current post image preview." title="@Model.ImageUrl" onchange="" />
+            <img id="image-preview" class="img-thumbnail" src="@Model.ImageUrl" alt="Current post image preview." title="@Model.ImageUrl" />
         </div>
     </div>
     <div class="row">

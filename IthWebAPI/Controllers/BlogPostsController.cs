@@ -91,6 +91,7 @@ namespace IthWebAPI.Controllers
         public async Task<ActionResult<BlogPost>> DeleteBlogPost(int id)
         {
             var blogPost = await _context.BlogPost.FindAsync(id);
+
             if (blogPost == null)
             {
                 return NotFound();
