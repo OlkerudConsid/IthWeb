@@ -16,5 +16,5 @@ Båda projekten bygger på **ASP.NET Core 3.1**.
 - [x] Redigera användare
 - [x] Redigera blogginlägg
 - [x] Lägg till/redigera bilder på blogginlägg
+- [x] Radera bilder
 - [ ] Hämta enskilt blogginlägg
-- [ ] Radera bilder
