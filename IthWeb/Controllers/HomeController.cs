@@ -95,6 +95,30 @@ namespace IthWeb.Controllers
             return RedirectToAction();
         }
 
+        [HttpGet("{id}")]
+        [Route("/Home/ViewPost", Name = "ViewPost")]
+        public async Task<IActionResult> ViewPost(int id)
+        {
+            // Get the specific post (specified by id) that we want to edit
+            var client = _clientFactory.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://localhost:44330/api/BlogPosts/{id}");
+            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("User-Agent", "IthWeb");
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                var post = await JsonSerializer.DeserializeAsync<BlogPost>(responseStream,
+                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+                return View(post);
+            }
+
+            return Error();
+        }
+
         [Authorize]
         [HttpGet("{id}")]
         [Route("/Home/EditPost", Name = "EditPost")]

@@ -103,6 +103,7 @@ namespace IthWebAPI.Controllers
             return blogPost;
         }
 
+        // Helper method to see if a blogpost of the specified id already exists
         private bool BlogPostExists(int id)
         {
             return _context.BlogPost.Any(e => e.Id == id);

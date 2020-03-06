@@ -7,19 +7,57 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    <form asp-controller="Home" asp-action="Index" enctype="multipart/form-data" method="post">
-        <h3>Make a post</h3>
-        <div class="form-group">
-            <label for="Title">Post title</label>
-            <input type="text" class="form-control" name="Title" placeholder="Title" required asp-for="InputModel.Title" />
-            <label for="Image">Image</label>
-            <input type="file" class="form-control-file" name="ImageFile" accept="image/*" asp-for="InputModel.ImageFile" />
-            <label for="Text">Post content</label>
-            <textarea name="Text" class="form-control" rows="3" placeholder="Text..." required asp-for="InputModel.Text"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Post</button>
-    </form>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#post-modal">✏ Create post</button>
     <hr />
+
+    // Modal that displays a form for creating a new blogpost
+    <div class="modal fade" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="post-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form asp-controller="Home" asp-action="Index" enctype="multipart/form-data" method="post" class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="post-modal-label">Create a blogpost</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-xs-12 col-md-6">
+                            <label for="Title">Post title</label>
+                            <input type="text" class="form-control" name="Title" placeholder="Title" required asp-for="InputModel.Title" />
+                            <label for="Text">Post content</label>
+                            <textarea name="Text" class="form-control" rows="3" placeholder="Text..." required asp-for="InputModel.Text"></textarea>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <label for="Image">Image</label>
+                            <input type="file" class="form-control-file" name="ImageFile" accept="image/*" asp-for="InputModel.ImageFile" onchange="UpdatePreviewImage(this)" />
+                            <br />
+                            <img id="image-preview" class="img-thumbnail" src="" alt="Current post image preview." title="Blogpost image" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">❌ Close</button>
+                    <button type="submit" class="btn btn-primary">✔ Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @*JavaScript function to display a preview of the image that is about to be uploaded*@
+    <script type="text/javascript">
+        function UpdatePreviewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#image-preview').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 }
 
 @if (TempData["PostError"] != null)
@@ -29,26 +67,34 @@
     </div>
 }
 
+@*This section displays all of the blogposts as 'cards'*@
 <section id="post-wrapper" class="card-columns">
     @foreach (var post in Model.BlogPosts)
     {
-    <article class="card">
-        <h3 class="card-header">@post.Title</h3>
-        <img class="card-img-top" src="@post.ImageUrl" alt="@post.ImageUrl">
-        <div class="card-body">
-            <p class="card-text">@post.Text</p>
+        <article class="card">
+            <h3 class="card-header"><a asp-action="ViewPost" asp-route-id="@post.Id">@post.Title</a></h3>
+            <img class="card-img-top" src="@post.ImageUrl" alt="@post.ImageUrl">
+            <div class="card-body">
+                @{ 
+                    int characterLimit = 280; // Based on twitters maximum tweet length ;)
+                    var processedText = post.Text.Length < characterLimit ? post.Text : post.Text.Substring(0, Math.Min(post.Text.Length, characterLimit)) + "...";
+                }
 
-            @if (User.Identity.IsAuthenticated)
-            {
-                <div class="btn-group">
-                    <a class="btn btn-danger" asp-action="DeletePost" asp-route-id="@post.Id">Delete</a>
-                    <a class="btn btn-secondary" asp-action="EditPost" asp-route-id="@post.Id">Edit</a>
-                </div>
-            }
-        </div>
-        <div class="card-footer text-muted">
-            Published by @post.Author at @post.PublishedDate.ToString("MMMM dd yyyy h:mm")
-        </div>
-    </article>
+                <p class="card-text post-text">@processedText</p>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="btn-group">
+                        <a class="btn btn-danger" asp-action="DeletePost" asp-route-id="@post.Id">🗑 Delete</a>
+                        <a class="btn btn-primary" asp-action="EditPost" asp-route-id="@post.Id">🛠 Edit</a>
+                    </div>
+                }
+            </div>
+            <div class="card-footer text-muted">
+                👤 @post.Author 
+                <br />
+                📅 @post.PublishedDate.ToString("MMMM dd yyyy h:mm")
+            </div>
+        </article>
     }
 </section>

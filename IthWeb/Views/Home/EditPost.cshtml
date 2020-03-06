@@ -1,9 +1,11 @@
 ﻿@model BlogPostInputModel
 @{
-    ViewData["Title"] = $"Edit post \"{Model.Title}\"";
+    ViewData["Title"] = $"Edit post: \"{Model.Title}\"";
 }
 
 <h1>@ViewData["Title"]</h1>
+
+@*Form for editing an existing blogpost. Note the 'enctype' attribute. This is necessary when we're dealing with file inputs.*@
 <form enctype="multipart/form-data" method="post">
     <div class="row">
         <div class="form-group col-xs-12 col-md-6">
@@ -22,14 +24,15 @@
             <label for="ImageFile">Image</label>
             <input class="form-control-file" type="file" accept="image/*" name="ImageFile" asp-for="ImageFile" onchange="UpdatePreviewImage(this)" />
             <br />
-            <img id="image-preview" class="img-thumbnail" src="@Model.ImageUrl" alt="Current post image preview." title="@Model.ImageUrl" />
+            <img id="image-preview" class="img-thumbnail" src="@Model.ImageUrl" alt="Post image preview." title="@Model.ImageUrl" />
         </div>
     </div>
     <div class="row">
-        <button type="submit" asp-controller="Home" asp-action="EditPost" class="btn btn-primary">Save</button>
+        <button type="submit" asp-controller="Home" asp-action="EditPost" class="btn btn-primary">💾 Save</button>
     </div>
 </form>
 
+@*JavaScript function to display a preview of the image that is about to be uploaded*@
 <script type="text/javascript">
     function UpdatePreviewImage(input) {
         if (input.files && input.files[0]) {

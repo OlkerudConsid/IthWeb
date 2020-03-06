@@ -10,6 +10,6 @@ html, body {
     box-shadow: rgba(0, 0, 0, 0.2) 0 4px 8px;
 }
 
-#post-wrapper .card > .card-body {
+.post-text{
     white-space: pre-line;
 }
