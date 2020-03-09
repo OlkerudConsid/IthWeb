@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using IthWeb.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace IthWeb.Controllers
 {
@@ -21,20 +22,29 @@ namespace IthWeb.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpClientFactory _clientFactory;
         private readonly IImageFileService _imageFileService;
+        private readonly IConfiguration _config;
+        private readonly string apiRootUrl;
 
         // Here we use Dependency Injection to get a logger and a clientfactory
-        public HomeController(ILogger<HomeController> logger, IHttpClientFactory clientFactory, IImageFileService imageFileService)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IHttpClientFactory clientFactory,
+            IImageFileService imageFileService,
+            IConfiguration config)
         {
             _logger = logger;
             _clientFactory = clientFactory;
             _imageFileService = imageFileService;
+            _config = config;
+
+            apiRootUrl = _config.GetValue(typeof(string), "BlogApiRoot").ToString();
         }
 
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44330/api/BlogPosts");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", "IthWeb");
 
@@ -64,7 +74,7 @@ namespace IthWeb.Controllers
         public async Task<IActionResult> Index([Bind("Title", "Text", "ImageFile")] BlogPostInputModel inputModel)
         {
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44330/api/BlogPosts/");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{apiRootUrl}BlogPosts/");
 
             var newPost = new BlogPost()
             {
@@ -101,7 +111,7 @@ namespace IthWeb.Controllers
         {
             // Get the specific post (specified by id) that we want to edit
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"https://localhost:44330/api/BlogPosts/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts/{id}");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", "IthWeb");
 
@@ -126,7 +136,7 @@ namespace IthWeb.Controllers
         {
             // Get the specific post (specified by id) that we want to edit
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"https://localhost:44330/api/BlogPosts/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts/{id}");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", "IthWeb");
 
@@ -160,7 +170,7 @@ namespace IthWeb.Controllers
         public async Task<IActionResult> EditPost([Bind("Id", "Title", "ImageFile", "ImageUrl", "Text", "PublishedDate", "Author")] BlogPostInputModel inputModel)
         {
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Put, $"https://localhost:44330/api/BlogPosts/{inputModel.Id}");
+            var request = new HttpRequestMessage(HttpMethod.Put, $"{apiRootUrl}BlogPosts/{inputModel.Id}");
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", "IthWeb");
 
@@ -202,7 +212,7 @@ namespace IthWeb.Controllers
         public async Task<IActionResult> DeletePost(int id)
         {
             var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"https://localhost:44330/api/BlogPosts/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{apiRootUrl}BlogPosts/{id}");
             request.Headers.Add("User-Agent", "IthWeb");
 
             var response = await client.SendAsync(request);
