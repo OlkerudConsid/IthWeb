@@ -9,6 +9,8 @@ Båda projekten bygger på **ASP.NET Core 3.1**.
 - [Scaffold Identity in ASP.NET Core projects](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio)
 - [Dependency injection in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-3.1)
 - [Upload files in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-3.1)
+- [Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-3.1)
+- [Safe storage of app secrets in development in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1&tabs=windows)
 ## Implementerad funktionalitet
 - [x] Skapa blogginlägg
 - [x] Radera blogginlägg
@@ -18,4 +20,4 @@ Båda projekten bygger på **ASP.NET Core 3.1**.
 - [x] Redigera blogginlägg
 - [x] Lägg till/redigera bilder på blogginlägg
 - [x] Radera bilder
-- [ ] Hämta enskilt blogginlägg
+- [x] Hämta enskilt blogginlägg
