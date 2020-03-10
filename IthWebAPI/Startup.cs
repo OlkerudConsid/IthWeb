@@ -22,11 +22,22 @@ namespace IthWebAPI
             Configuration = configuration;
         }
 
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; // Name of our custom Cors policy
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add a Cors policy and set its options. In this case we allow our web project to access resources in this one.
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost:44389"); // The url to our web project that will be making requests to this project
+                    });
+            });
+
             services.AddControllers();
 
             services.AddDbContext<IthWebAPIContext>(options =>
@@ -41,9 +52,14 @@ namespace IthWebAPI
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(MyAllowSpecificOrigins);    // Tell our app to use our Cors policy.
+                                                    // Set it inbetween app.UseRouting() and app.UseEndpoints()
+                                                    // otherwise it might not work properly!
 
             app.UseAuthorization();
 

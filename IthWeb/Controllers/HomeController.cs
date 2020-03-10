@@ -28,7 +28,7 @@ namespace IthWeb.Controllers
         // Here we use Dependency Injection to get a logger and a clientfactory
         public HomeController(
             ILogger<HomeController> logger,
-            IHttpClientFactory clientFactory,
+            IHttpClientFactory clientFactory,   
             IImageFileService imageFileService,
             IConfiguration config)
         {
