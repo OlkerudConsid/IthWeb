@@ -1,6 +1,9 @@
 # Exempel-lösning *IthWeb*
 Detta är en exempel-lösning för studenterna på ITH som går kursen *Avancerad programmering med C#*. Lösningen visar grunderna i hur man kan få ett webb-projekt att kommunicera med ett API-projekt med hjälp utav *IHttpClientFactory*.
 Båda projekten bygger på **ASP.NET Core 3.1**.
+
+**OBS!** Glöm inte att köra *Update-Database*!
+
 ## Länkar
 - [Make HTTP requests using IHttpClientFactory in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1)
 - [CSS-Tricks: A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
