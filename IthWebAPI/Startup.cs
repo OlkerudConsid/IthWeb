@@ -52,7 +52,6 @@ namespace IthWebAPI
                 app.UseDeveloperExceptionPage();
             }
 
-
             app.UseHttpsRedirection();
 
             app.UseRouting();

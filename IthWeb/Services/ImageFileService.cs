@@ -25,6 +25,16 @@ namespace IthWeb.Services
 
         public async Task<string> SaveImage(IFormFile imageFile)
         {
+            // If the file is null or not an image
+            if (imageFile == null)
+            {
+                throw new ArgumentNullException("imageFile");
+            }
+            else if (imageFile.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                throw new ArgumentException("The provided file is not an image.", "imageFile");
+            }
+
             // Get the filename of the uploaded file and the path where we want to save the image.
             var fileExtension = Path.GetExtension(imageFile.FileName);
             var fileName = $"{Guid.NewGuid()}{fileExtension}";

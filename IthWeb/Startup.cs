@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Rewrite;
 using IthWeb.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace IthWeb
 {
@@ -34,6 +35,15 @@ namespace IthWeb
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential 
+                // cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                // requires using Microsoft.AspNetCore.Http;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -58,6 +68,9 @@ namespace IthWeb
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseCookiePolicy();
+
             app.UseRouting();
 
             app.UseAuthentication();
