@@ -23,6 +23,11 @@ namespace IthWeb.Services
             return Task.FromResult(false);
         }
 
+        /// <summary>
+        /// Saves an image to the filesystem
+        /// </summary>
+        /// <param name="imageFile">The imagefile to save</param>
+        /// <returns>Filepath</returns>
         public async Task<string> SaveImage(IFormFile imageFile)
         {
             // If the file is null or not an image

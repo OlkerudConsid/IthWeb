@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IthWeb.DTOs;
 
 namespace IthWeb.Models
 {
     public class HomeViewModel
     {
-        public List<BlogPost> BlogPosts { get; set; }
+        public List<BlogPostDTO> BlogPosts { get; set; }
         public BlogPostInputModel InputModel { get; set; }
     }
 

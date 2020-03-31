@@ -4,14 +4,16 @@ using IthWebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace IthWebAPI.Migrations
 {
     [DbContext(typeof(IthWebAPIContext))]
-    partial class IthWebAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20200327145539_add-comment-class")]
+    partial class addcommentclass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,18 +69,7 @@ namespace IthWebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BlogPostId");
-
                     b.ToTable("Comment");
-                });
-
-            modelBuilder.Entity("IthWebAPI.Models.Comment", b =>
-                {
-                    b.HasOne("IthWebAPI.Models.BlogPost", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

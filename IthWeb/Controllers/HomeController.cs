@@ -14,90 +14,43 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using IthWeb.Services;
 using Microsoft.Extensions.Configuration;
+using IthWeb.DTOs;
 
 namespace IthWeb.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly IImageFileService _imageFileService;
-        private readonly IConfiguration _config;
-        private readonly string apiRootUrl;
+        private readonly IBlogService _blogService;
 
-        // Here we use Dependency Injection to get a logger and a clientfactory
+        // Here we use Dependency Injection to get a blogservice
         public HomeController(
-            ILogger<HomeController> logger,
-            IHttpClientFactory clientFactory,   
-            IImageFileService imageFileService,
-            IConfiguration config)
+            IBlogService blogService)
         {
-            _logger = logger;
-            _clientFactory = clientFactory;
-            _imageFileService = imageFileService;
-            _config = config;
-
-            apiRootUrl = _config.GetValue(typeof(string), "BlogApiRoot").ToString();
+            _blogService = blogService;
         }
 
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts");
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", "IthWeb");
+            var posts = await _blogService.GetAllPosts();
 
-            // Send the request and await the response from the API
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            var vm = new HomeViewModel()
             {
-                // Read the content of the API response and parse it to our model
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                var posts = await JsonSerializer.DeserializeAsync<List<BlogPost>>(responseStream,
-                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                BlogPosts = posts.ToList()
+            };
 
-                // Create an instance of our ViewModel and populate it with the data parsed from the response
-                var vm = new HomeViewModel();
-                vm.BlogPosts = posts.OrderBy(x => x.PublishedDate).ToList();
-
-                return View(vm);
-            }
-
-            // If "response.IsSuccessStatusCode == false" then we just return the view with an empty ViewModel
-            return View(new HomeViewModel());
+            return View(vm);
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Index([Bind("Title", "Text", "ImageFile")] BlogPostInputModel inputModel)
         {
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{apiRootUrl}BlogPosts/");
+            inputModel.Author = User.Identity.Name;
 
-            var newPost = new BlogPost()
-            {
-                Author = User.Identity.Name,
-                Title = inputModel.Title,
-                Text = inputModel.Text,
-                PublishedDate = DateTime.Now
-            };
+            var isCreateSuccessful = await _blogService.CreatePost(inputModel);
 
-            if (inputModel.ImageFile != null)
-            {
-                newPost.ImageUrl = await _imageFileService.SaveImage(inputModel.ImageFile);
-            }
-
-            // Serialize the model and set it as the content of our request
-            var postJson = JsonSerializer.Serialize(newPost);
-
-            request.Headers.Add("User-Agent", "IthWeb");
-            request.Content = new StringContent(postJson, Encoding.UTF8, "application/json");
-
-            var response = await client.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
+            if (!isCreateSuccessful)
             {
                 TempData["PostError"] = "Something went wrong, try again or contact support!";
             }
@@ -109,24 +62,14 @@ namespace IthWeb.Controllers
         [Route("/Home/ViewPost", Name = "ViewPost")]
         public async Task<IActionResult> ViewPost(int id)
         {
-            // Get the specific post (specified by id) that we want to edit
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts/{id}");
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", "IthWeb");
+            var post = await _blogService.GetPostById(id);
 
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            if (post != null)
             {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                var post = await JsonSerializer.DeserializeAsync<BlogPost>(responseStream,
-                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
                 return View(post);
             }
 
-            return Error();
+            return NotFound();
         }
 
         [Authorize]
@@ -134,34 +77,24 @@ namespace IthWeb.Controllers
         [Route("/Home/EditPost", Name = "EditPost")]
         public async Task<IActionResult> EditPost(int id)
         {
-            // Get the specific post (specified by id) that we want to edit
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{apiRootUrl}BlogPosts/{id}");
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", "IthWeb");
+            var post = await _blogService.GetPostById(id);
 
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            if (post == null)
             {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                var post = await JsonSerializer.DeserializeAsync<BlogPost>(responseStream,
-                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
-                var vm = new BlogPostInputModel()
-                {
-                    Id = post.Id,
-                    Author = post.Author,
-                    PublishedDate = post.PublishedDate,
-                    Title = post.Title,
-                    Text = post.Text,
-                    ImageUrl = post.ImageUrl
-                };
-
-                return View(vm);
+                return NotFound();
             }
 
-            return Error();
+            var vm = new BlogPostInputModel()
+            {
+                Id = post.Id,
+                Author = post.Author,
+                PublishedDate = post.PublishedDate,
+                Title = post.Title,
+                Text = post.Text,
+                ImageUrl = post.ImageUrl
+            };
+
+            return View(vm);
         }
 
         [Authorize]
@@ -169,69 +102,27 @@ namespace IthWeb.Controllers
         [Route("/Home/EditPost", Name = "EditPost")]
         public async Task<IActionResult> EditPost([Bind("Id", "Title", "ImageFile", "ImageUrl", "Text", "PublishedDate", "Author")] BlogPostInputModel inputModel)
         {
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Put, $"{apiRootUrl}BlogPosts/{inputModel.Id}");
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", "IthWeb");
+            var isUpdateSuccessful = await _blogService.UpdatePost(inputModel);
 
-            var editedPost = new BlogPost()
-            {
-                Id = inputModel.Id,
-                Author = inputModel.Author,
-                PublishedDate = inputModel.PublishedDate,
-                Title = inputModel.Title,
-                Text = inputModel.Text,
-                ImageUrl = inputModel.ImageUrl
-            };
-
-            if (inputModel.ImageFile != null)
-            {
-                if (!string.IsNullOrEmpty(inputModel.ImageUrl))
-                {
-                    var imageFileName = inputModel.ImageUrl.Split('/').LastOrDefault();
-                    await _imageFileService.DeleteImage(imageFileName);
-                }
-
-                editedPost.ImageUrl = await _imageFileService.SaveImage(inputModel.ImageFile);
-            }
-
-            var postJson = JsonSerializer.Serialize(editedPost);
-            request.Content = new StringContent(postJson, Encoding.UTF8, "application/json");
-
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            if (isUpdateSuccessful)
             {
                 return RedirectToAction("Index");
             }
 
-            return Error();
+            return RedirectToAction("Error");
         }
 
         [Authorize]
         public async Task<IActionResult> DeletePost(int id)
         {
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{apiRootUrl}BlogPosts/{id}");
-            request.Headers.Add("User-Agent", "IthWeb");
+            var isDeleteSuccessful = await _blogService.DeletePost(id);
 
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            if (isDeleteSuccessful)
             {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                var post = await JsonSerializer.DeserializeAsync<BlogPost>(responseStream,
-                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
-                if (!string.IsNullOrEmpty(post.ImageUrl))
-                {
-                    var imageFileName = post.ImageUrl.Split('/').LastOrDefault();
-
-                    await _imageFileService.DeleteImage(imageFileName);
-                }
+                return RedirectToAction("Index");
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Error");
         }
 
         public IActionResult Privacy()

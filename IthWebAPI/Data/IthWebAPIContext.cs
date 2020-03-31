@@ -14,6 +14,7 @@ namespace IthWebAPI.Data
         {
         }
 
-        public DbSet<IthWebAPI.Models.BlogPost> BlogPost { get; set; }
+        public DbSet<BlogPost> BlogPost { get; set; }
+        public DbSet<Comment> Comment { get; set; }
     }
 }

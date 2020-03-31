@@ -50,6 +50,7 @@ namespace IthWeb
             services.AddMvc();
             services.AddHttpClient(); // Registers IHttpClientFactory
             services.AddTransient<IImageFileService, ImageFileService>(); // Register our custom imageFile service
+            services.AddTransient<IBlogService, BlogService>(); // Register our custom blog service
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -20,4 +20,9 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\IthWeb.DTOs\IthWeb.DTOs.csproj" />
+  </ItemGroup>
+
 </Project>
